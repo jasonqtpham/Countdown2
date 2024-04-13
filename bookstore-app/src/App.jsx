@@ -26,43 +26,64 @@ function App() {
   const [isNonFiction, setIsNonFiction] = useState(true);
   const [isChildren, setIsChildren] = useState(true);
 
+  const [basket, setBasket] = useState(new Set());
+
+  function addToBucket(book) {
+    setBasket(new Set([...basket, book]));
+  }
   return (
     <>
-      <div>
-        <button onClick={() => setIsFiction(!isFiction)}>Fiction</button>
-        <button onClick={() => setIsNonFiction(!isNonFiction)}>Non-Fiction</button>
-        <button onClick={() => setIsChildren(!isChildren)}>Children</button>
+      <div className="container">
+        <div className="catalog">
+          <div>
+            <button onClick={() => setIsFiction(!isFiction)}>Fiction</button>
+            <button onClick={() => setIsNonFiction(!isNonFiction)}>Non-Fiction</button>
+            <button onClick={() => setIsChildren(!isChildren)}>Children</button>
+          </div>
+
+          {isFiction && (
+            <>
+              <h1>Fiction</h1>
+                <RenderBook bookData={bookData} genre="fiction" addToBucket={addToBucket}/>
+            </>   
+          )}
+
+          {isNonFiction && (
+            <>
+              <h1>Non-Fiction</h1>
+                <RenderBook bookData={bookData} genre="non-fiction" addToBucket={addToBucket}/>
+            </>   
+          )}
+
+          {isChildren && (
+            <>
+              <h1>Children</h1>
+                <RenderBook bookData={bookData} genre="children" addToBucket={addToBucket}/>
+            </>   
+          )}
+        </div>
+
+        <div>
+          <h1>Basket</h1>
+          {Array.from(basket).map((book,index) => {
+            return (
+              <li key={book.title}>
+                {`${book.title}, ${book.author}, \$${book.price} `}
+              </li>
+            )
+          })}
+        </div>
       </div>
-
-      {isFiction && (
-        <>
-          <h1>Fiction</h1>
-            <RenderBook bookData={bookData} genre="fiction" />
-        </>   
-      )}
-
-      {isNonFiction && (
-        <>
-          <h1>Non-Fiction</h1>
-            <RenderBook bookData={bookData} genre="non-fiction" />
-        </>   
-      )}
-
-      {isChildren && (
-        <>
-          <h1>Children</h1>
-            <RenderBook bookData={bookData} genre="children" />
-        </>   
-      )}
     </>
   );
 }
 
-function RenderBook({ bookData, genre }) {
+function RenderBook({ bookData, genre, addToBucket}) {
   return (
     bookData[genre].map(book => (
       <li key={book.title}>
-        {`${book.title}, ${book.author}, \$${book.price}`}
+        {`${book.title}, ${book.author}, \$${book.price} `}
+        <button onClick={() => addToBucket(book)}>add</button>
       </li>
     ))
   );
