@@ -1,5 +1,10 @@
 import React, {useState, useEffect} from 'react'
 import '../styles/TriviaApp.css';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+
 const TriviaApp = () => {
   const [questions, setQuestions] = useState([]);
   const [refresh, setRefresh] = useState(0);
@@ -15,6 +20,7 @@ const TriviaApp = () => {
 
   return (
     <>
+    <h1> Trivia Game </h1>
     <button onClick={() => setRefresh(refresh+1)}>Refresh Questions</button>
     <div>
         {questions.map((question, index) => (
@@ -29,7 +35,7 @@ const TriviaApp = () => {
 
 const RenderQuestion = ({question, index}) => {
     const [shuffledChoices, setShuffledChoices] = useState([]);
-  
+   
     useEffect(() => {
         const combinedChoices = [question.correctAnswer, ...question.incorrectAnswers];
         setShuffledChoices(combinedChoices.sort(() => 0.5 - Math.random()));
@@ -44,28 +50,28 @@ const RenderQuestion = ({question, index}) => {
         const isCorrect = (choice === question.correctAnswer);
         const isSelected = (choice === selectedAnswer);
         const choiceClassName = isSelected ? (isCorrect ? 'correct' : 'incorrect') : '';
-
         return (
-          <div key={index} className={choiceClassName}>
-              <input
-                  type="radio"
-                  name={question.question.text}
-                  value={choice}
-                  onChange={handleChoiceSelection}
-                  checked={isSelected}
-              />
-              <label>{choice}</label>
-          </div>
+          <FormControlLabel
+          key={index}
+          value={choice}
+          control={<Radio />}
+          label={choice}
+          className={choiceClassName}
+          />
       );
     });
 
     return (
-        <>
-        <div>
-        <p>Question {index + 1}: {question.question.text}</p>
-            {choices} 
-        </div>
-        </>
+      <>
+      <div>
+          <p>Question {index + 1}: {question.question.text}</p>
+          <FormControl component="fieldset">
+              <RadioGroup value={selectedAnswer} onChange={handleChoiceSelection}>
+                  {choices}
+              </RadioGroup>
+          </FormControl>
+      </div>
+  </>
     )
 }
 export default TriviaApp
