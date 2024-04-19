@@ -1,17 +1,13 @@
 import React, {useState, useEffect} from 'react'
-
+import '../styles/TriviaApp.css';
 const TriviaApp = () => {
   const [questions, setQuestions] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
-        const response = await fetch('https://opentdb.com/api.php?amount=10');
+        const response = await fetch('https://the-trivia-api.com/v2/questions');
         const json = await response.json();
-        // debugging
-        console.log(JSON.stringify(json));
-
-        setQuestions(json.results);
+        setQuestions(json);
     }
-
     fetchData();
   }, []); 
 
@@ -20,7 +16,7 @@ const TriviaApp = () => {
     <div>
         {questions.map((question, index) => (
         <div key={index}>
-          <RenderQuestion question={question} index={index}/>
+          <RenderQuestion questionInput={question} index={index}/>
         </div>
       ))}
     </div>
@@ -28,20 +24,41 @@ const TriviaApp = () => {
   );
 }
 
-const RenderQuestion = ({question, index}) => {
-    const combinedChoices = [question.correct_answer, ...question.incorrect_answers];
-    const shuffledChoices = combinedChoices.sort((a,b) => 0.5 - Math.random());
-    // console.log(shuffledAnswers)
-    const choices = shuffledChoices.map((choice, index) => (
-        <div key={index}>
-            <input type="radio" name="choice" value={choice}/>
-            <label>{choice}</label>
-        </div>
-    ));
+const RenderQuestion = ({questionInput, index}) => {
+    const [question,setQuest] = useState(questionInput);
+    const [shuffledChoices, setShuffledChoices] = useState(() => {
+      const combinedChoices = [question.correctAnswer, ...question.incorrectAnswers]
+      return combinedChoices.sort(() => 0.5 - Math.random());
+    });
+
+    const [selectedAnswer, setSelectedAnswer] = useState(null);
+    const handleChoiceSelection = (choice) => {
+      setSelectedAnswer(choice.target.value);
+    };
+    
+    const choices = shuffledChoices.map((choice, index) => {
+        const isCorrect = (choice === question.correctAnswer);
+        const isSelected = (choice === selectedAnswer);
+        const choiceClassName = isSelected ? (isCorrect ? 'correct' : 'incorrect') : '';
+        
+        return (
+          <div key={index} className={choiceClassName}>
+              <input
+                  type="radio"
+                  name={question.question.text}
+                  value={choice}
+                  onChange={handleChoiceSelection}
+                  checked={isSelected}
+              />
+              <label>{choice}</label>
+          </div>
+      );
+    });
+
     return (
         <>
         <div>
-            <p>Question {index + 1}: {question.question}</p>
+        <p>Question {index + 1}: {question.question.text}</p>
             {choices}
             
         </div>
